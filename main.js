@@ -4,6 +4,7 @@ canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
 var context = canvas.getContext("2d");
 var deck;
+var players = [];
 
 class Card {
     constructor(suit, value) {
@@ -62,6 +63,13 @@ function buildDeck() {
 setup()
 console.log(deck);
 
+
+document.getElementById("addPlayerBttn").onclick = function() {addPlayer()};
+
+function addPlayer() {
+    var nameValue = document.getElementById("addPlayerName").value;
+    players.push(nameValue);
+}
 
 function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
