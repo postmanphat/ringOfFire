@@ -84,10 +84,16 @@ document.getElementById("addPlayerName").addEventListener("keydown", function(ev
 
 function addPlayer() {
     var nameValue = document.getElementById("addPlayerName").value;
-    players.push(nameValue);
-    document.getElementById('addPlayerName').value = '';
-    console.log(players);
-    refresh();
+    if (nameValue == "") {
+        alert("No name inputted");
+    }
+    else {
+        players.push(nameValue);
+        document.getElementById('addPlayerName').value = '';
+        console.log(players);
+        refresh();
+    }
+    
 }
 
 function drawCard() {
