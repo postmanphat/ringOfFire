@@ -99,7 +99,22 @@ function addPlayer() {
 function drawCard() {
     activePlayer = (activePlayer + 1) % players.length;
     currentCard = deck.deal();
-    refresh();
+    if (currentCard.value == "K") {
+        var numKings = 0;
+        deck.cards.forEach(function countKings(value) {
+            if (value.value == "K") {
+                numKings++;
+            }
+        })
+        console.log(`There are ${numKings} kings left in the deck.`);
+        refresh();
+        context.font = "20px Arial"
+        context.fillStyle = "#FFFFFF";
+        context.fillText(`There are ${numKings} kings left in the deck.`, canvas.width/2 ,canvas.height-30);
+    }
+    else {
+        refresh();
+    }
 }
 
 function resetGame() {
