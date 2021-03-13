@@ -99,23 +99,67 @@ function addPlayer() {
 function drawCard() {
     activePlayer = (activePlayer + 1) % players.length;
     currentCard = deck.deal();
-    if (currentCard.value == "K") {
-        var numKings = 0;
-        deck.cards.forEach(function countKings(value) {
-            if (value.value == "K") {
-                numKings++;
-            }
-        })
-        console.log(`There are ${numKings} kings left in the deck.`);
-        refresh();
-        context.font = "20px Arial"
-        context.fillStyle = "#FFFFFF";
-        context.fillText(`There are ${numKings} kings left in the deck.`, canvas.width/2 ,canvas.height-30);
-    }
-    else {
-        refresh();
-    }
+	refresh();
 }
+
+function getMsg(val) {
+	var msg = "";
+	switch (val) {
+		case "A":
+			msg = "Waterfall!";
+			break;
+		case 2:
+			msg = "Two is you";
+			break;
+		case 3:
+			msg = "Three is me";
+			break;
+		case 4:
+			msg = "Four is whores";
+			break;
+		case 5:
+			msg = "Thumbmaster!";
+			break;
+		case 6:
+			msg = "Six is dicks";
+			break;
+		case 7:
+			msg = "Seven is heaven";
+			break;
+		case 8:
+			msg = "Eight is mates";
+			break;
+		case 9:
+			msg = "Nine is rhymes";
+			break;
+		case 10:
+			msg = "Ten is categories";
+			break;
+		case "J":
+			msg = "Make a new rule";
+			break;
+		case "Q":
+			msg = "Questionmaster!"
+			break;
+		case "K":
+			var numKings = 0;
+			deck.cards.forEach(function countKings(value) {
+				if (value.value == "K") {
+					numKings++;
+				}
+			})
+			if (numKings == 0) {
+				msg = "no more kings"
+			}
+			else {
+				msg = `There are ${numKings} kings left in the deck.`;
+			}
+			break;
+			
+	}
+	return msg;
+}
+
 
 function resetGame() {
   deck.reset();
@@ -131,17 +175,12 @@ function refresh() {
   var step = Math.PI*2/players.length;
   var centre = {x: canvas.width/2, y:canvas.height/2};  
   var cardID = currentCard.value + currentCard.suit;
-  console.log(`card is ${cardID}`);
-  context.fillStyle = "#FFFFFF"
-  context.textAlign = 'center';
-  //context.fillText(`${currentCard.value} of ${currentCard.suit}`, centre.x, centre.y);
   if (cardID != "NN") {
 	context.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
   }
   
-
-  for (var i = 0; i < players.length; i++) {
-      
+  context.textAlign = 'center';
+  for (var i = 0; i < players.length; i++) {      
       var angle = i*step;      
       var dX = nameRadius*Math.cos(angle);
       var dY = nameRadius*Math.sin(angle);
@@ -153,6 +192,12 @@ function refresh() {
       }
       context.fillText(players[i], centre.x+dX, centre.y+dY);    
   }
+  
+  context.font = "30px Arial"
+  context.fillStyle = "#FFFFFF";
+
+  context.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
+  
 }
 
 function setup() {
