@@ -2,14 +2,17 @@ console.log('loaded')
 var canvas = document.getElementById("html-canvas");
 canvas.width = canvas.clientWidth;
 canvas.height = canvas.clientHeight;
+var centre = {x: canvas.width/2, y:canvas.height/2};  
 var nameRadius = canvas.height*2/5;
-var context = canvas.getContext("2d");
+var ctx = canvas.getContext("2d");
 var deck;
 var players = [];
 var activePlayer = -1;
 var currentCard = {suit: 'N', value: 'N'};
 var cardImages = {}
 var cardSize = {x: 230, y: 352};
+
+var mPos = {x: 0, y: 0};
 
 class Card {
     constructor(suit, value) {
@@ -73,9 +76,20 @@ document.getElementById("addPlayerBttn").onclick = function() {addPlayer()};
 document.getElementById("drawCardBttn").onclick = function() {drawCard()};
 document.getElementById("resetBttn").onclick = function() {resetGame()};
 
+canvas.addEventListener("mousemove", function(e) { 
+    var cRect = canvas.getBoundingClientRect();        // Gets CSS pos, and width/height
+    mPos.x = Math.round(e.clientX - cRect.left);  // Subtract the 'left' of the canvas 
+    mPos.y = Math.round(e.clientY - cRect.top);   // from the X/Y positions to make
+});
+
+canvas.addEventListener("mousedown", function(e) {
+    mouseClicked();
+});
+
+
 document.getElementById("addPlayerName").addEventListener("keydown", function(event) {
   // Number 13 is the "Enter" key on the keyboard
-  if (event.keyCode === 13) {
+  if (event.key === 'Enter') {
     event.preventDefault();
     document.getElementById("addPlayerBttn").click();
   }
@@ -88,12 +102,29 @@ function addPlayer() {
         alert("No name inputted");
     }
     else {
-        players.push(nameValue);
+        players.push({name: nameValue, x: 0, y: 0});
         document.getElementById('addPlayerName').value = '';
         console.log(players);
-        refresh();
+        updatePlayers();
     }
     
+}
+
+function removePlayer(playerName) {
+    players = players.filter(function(player) {
+        return player.name !== playerName;
+    })
+    updatePlayers();
+}
+
+function updatePlayers() {
+    var step = Math.PI*2/players.length;
+    for (var i = 0; i < players.length; i++) {      
+        var angle = i*step;      
+        players[i].x = centre.x + nameRadius*Math.cos(angle);
+        players[i].y = centre.y + nameRadius*Math.sin(angle);   
+    }
+    refresh();
 }
 
 function drawCard() {
@@ -149,7 +180,7 @@ function getMsg(val) {
 				}
 			})
 			if (numKings == 0) {
-				msg = "no more kings"
+				msg = "No more kings"
 			}
 			else {
 				msg = `There are ${numKings} kings left in the deck.`;
@@ -170,33 +201,31 @@ function resetGame() {
 
 function refresh() {
   console.log("refreshing!");
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   //Draw names
-  var step = Math.PI*2/players.length;
-  var centre = {x: canvas.width/2, y:canvas.height/2};  
   var cardID = currentCard.value + currentCard.suit;
   if (cardID != "NN") {
-	context.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
+	ctx.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
   }
   
-  context.textAlign = 'center';
+  ctx.textAlign = 'center';
   for (var i = 0; i < players.length; i++) {      
-      var angle = i*step;      
-      var dX = nameRadius*Math.cos(angle);
-      var dY = nameRadius*Math.sin(angle);
-    
-      context.font = "30px Arial"
-      context.fillStyle = "#FFFFFF";
-      if (i == activePlayer) {
-        context.fillStyle = "#FF0000";
-      }
-      context.fillText(players[i], centre.x+dX, centre.y+dY);    
-  }
-  
-  context.font = "30px Arial"
-  context.fillStyle = "#FFFFFF";
 
-  context.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
+    ctx.font = "30px Arial"
+    ctx.fillStyle = "#FFFFFF";
+
+    if (i == activePlayer) {
+      console.log(`Current player is ${players[i]}`)
+      ctx.fillStyle = "#FF0000";
+    }
+
+    ctx.fillText(players[i].name, players[i].x, players[i].y);    
+    }
+  
+  //Display current rule
+  ctx.fillStyle = "#FFFFFF";
+  ctx.font = "30px Arial";
+  ctx.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
   
 }
 
@@ -212,4 +241,28 @@ function loadImages() {
        var cardID = value.value + value.suit;
        cardImages[cardID] = new Image();
        cardImages[cardID].src = 'media/cards/PNG/' + cardID + '.png';
-})};
+    });
+}
+
+
+function mouseClicked() {
+    console.log(`Clicked! ${mPos.x}/${mPos.y}`);
+    //card check
+    if (mPos.x > (centre.x - cardSize.x/2) && mPos.x < (centre.x + cardSize.x/2) &&
+        mPos.y > (centre.y - cardSize.y/2) && mPos.y < (centre.y + cardSize.y/2)) {
+            drawCard();
+        }
+    //player check
+    else {
+        for (var i = 0; i < players.length; i++) {      
+            var nameWidth = ctx.measureText(players[i].name).width;
+            if (mPos.x > (players[i].x - nameWidth/2) && mPos.x < (players[i].x + nameWidth/2) &&
+                mPos.y > (players[i].y - 10) && mPos.y < (players[i].y + 10)) {  
+                    if (confirm(`Remove ${players[i].name}?`)) {
+                        removePlayer(players[i].name);
+                    };
+                }  
+        }
+    }
+}
+
