@@ -7,10 +7,14 @@ var nameRadius = canvas.height*2/5;
 var ctx = canvas.getContext("2d");
 var deck;
 var players = [];
-var activePlayer = -1;
+var activePlayer = 0;
 var currentCard = {suit: 'N', value: 'N'};
 var cardImages = {}
 var cardSize = {x: 230, y: 352};
+ctx.font = "30px Arial"
+
+var background = new Image();
+background.src = "media/background.png";
 
 var mPos = {x: 0, y: 0};
 
@@ -200,33 +204,36 @@ function resetGame() {
 }
 
 function refresh() {
-  console.log("refreshing!");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  //Draw names
-  var cardID = currentCard.value + currentCard.suit;
-  if (cardID != "NN") {
-	ctx.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
-  }
+    console.log("refreshing!");
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+    
+    var cardID = currentCard.value + currentCard.suit;
+    if (cardID != "NN") {
+	  ctx.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
+    }
   
-  ctx.textAlign = 'center';
-  for (var i = 0; i < players.length; i++) {      
+    ctx.textAlign = 'center';
+    for (var i = 0; i < players.length; i++) {  
+        ctx.font = "30px Arial"
+        ctx.fillStyle = "#FFFFFF";
+        //Draw stroke around names
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 4;
+        ctx.strokeText(players[i].name, players[i].x, players[i].y);
 
-    ctx.font = "30px Arial"
+        if (i == activePlayer) {
+            //Set colour for active player to red
+            ctx.fillStyle = "#FF0000";
+        }
+        //Draw names
+        ctx.fillText(players[i].name, players[i].x, players[i].y);    
+    }
+  
+    //Display current rule
+    ctx.lineWidth = 4;
+    ctx.strokeText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
     ctx.fillStyle = "#FFFFFF";
-
-    if (i == activePlayer) {
-      console.log(`Current player is ${players[i]}`)
-      ctx.fillStyle = "#FF0000";
-    }
-
-    ctx.fillText(players[i].name, players[i].x, players[i].y);    
-    }
-  
-  //Display current rule
-  ctx.fillStyle = "#FFFFFF";
-  ctx.font = "30px Arial";
-  ctx.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
-  
+    ctx.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);  
 }
 
 function setup() {
@@ -266,3 +273,4 @@ function mouseClicked() {
     }
 }
 
+window.onload = resetGame;
