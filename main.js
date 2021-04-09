@@ -83,14 +83,17 @@ document.getElementById("addPlayerBttn").onclick = function() {addPlayer()};
 document.getElementById("drawCardBttn").onclick = function() {drawCard()};
 document.getElementById("resetBttn").onclick = function() {resetGame()};
 
-canvas.addEventListener("mousemove", function(e) { 
-    var cRect = canvas.getBoundingClientRect();        // Gets CSS pos, and width/height
-    mPos.x = Math.round(e.clientX - cRect.left);  // Subtract the 'left' of the canvas 
-    mPos.y = Math.round(e.clientY - cRect.top);   // from the X/Y positions to make
-});
+// canvas.addEventListener("mousemove", function(e) { 
+//     var cRect = canvas.getBoundingClientRect();        // Gets CSS pos, and width/height
+//     xPos = Math.round(e.clientX - cRect.left);  // Subtract the 'left' of the canvas 
+//     yPos = Math.round(e.clientY - cRect.top);   // from the X/Y positions to make
+// });
 
 canvas.addEventListener("mousedown", function(e) {
-    mouseClicked();
+    var cRect = canvas.getBoundingClientRect();        // Gets CSS pos, and width/height
+    var xPos = Math.round(e.clientX - cRect.left);  // Subtract the 'left' of the canvas 
+    var yPos = Math.round(e.clientY - cRect.top);
+    mouseClicked(xPos, yPos);
 });
 
 
@@ -111,7 +114,6 @@ function addPlayer() {
     else {
         players.push({name: nameValue, x: 0, y: 0});
         document.getElementById('addPlayerName').value = '';
-        console.log(players);
         updatePlayers();
     }
     
@@ -136,12 +138,21 @@ function updatePlayers() {
 
 function drawCard() {
     activePlayer = (activePlayer + 1) % players.length;
-    if (deck.cards.length == 0) {
-        alert("No more cards!");
-        resetGame();
+    //in case no players in game
+    if (isNaN(activePlayer)) {
+        activePlayer = -1;
     }
-    currentCard = deck.deal();
-	refresh();
+    console.log(deck.cards.length);
+    if (deck.cards.length == 0) {
+        alert("The deck is empty!");
+        resetGame();
+
+    }
+    else {
+        currentCard = deck.deal();
+	    refresh();
+    }
+    
 }
 
 function getMsg(val) {
@@ -224,7 +235,7 @@ function refresh() {
   
     ctx.textAlign = 'center';
     for (var i = 0; i < players.length; i++) {  
-        ctx.font = "30px Arial"
+        ctx.font = "30px Lexend:wght@300"
         ctx.fillStyle = "#FFFFFF";
         //Draw stroke around names
         ctx.strokeStyle = '#000000';
@@ -262,19 +273,18 @@ function loadImages() {
 }
 
 
-function mouseClicked() {
-    console.log(`Clicked! ${mPos.x}/${mPos.y}`);
+function mouseClicked(xPos, yPos) {
     //card check
-    if (mPos.x > (centre.x - cardSize.x/2) && mPos.x < (centre.x + cardSize.x/2) &&
-        mPos.y > (centre.y - cardSize.y/2) && mPos.y < (centre.y + cardSize.y/2)) {
+    if (xPos > (centre.x - cardSize.x/2) && xPos < (centre.x + cardSize.x/2) &&
+        yPos > (centre.y - cardSize.y/2) && yPos < (centre.y + cardSize.y/2)) {
             drawCard();
         }
     //player check
     else {
         for (var i = 0; i < players.length; i++) {      
             var nameWidth = ctx.measureText(players[i].name).width;
-            if (mPos.x > (players[i].x - nameWidth/2) && mPos.x < (players[i].x + nameWidth/2) &&
-                mPos.y > (players[i].y - 10) && mPos.y < (players[i].y + 10)) {  
+            if (xPos > (players[i].x - nameWidth/2) && xPos < (players[i].x + nameWidth/2) &&
+                yPos > (players[i].y - 10) && yPos < (players[i].y + 10)) {  
                     if (confirm(`Remove ${players[i].name}?`)) {
                         removePlayer(players[i].name);
                     };
