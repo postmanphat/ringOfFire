@@ -16,6 +16,9 @@ ctx.font = "30px Arial"
 var background = new Image();
 background.src = "media/background.png";
 
+var cardBack = new Image();
+cardBack.src = "media/cards/PNG/red_back.png";
+
 var mPos = {x: 0, y: 0};
 
 class Card {
@@ -133,6 +136,10 @@ function updatePlayers() {
 
 function drawCard() {
     activePlayer = (activePlayer + 1) % players.length;
+    if (deck.cards.length == 0) {
+        alert("No more cards!");
+        resetGame();
+    }
     currentCard = deck.deal();
 	refresh();
 }
@@ -208,8 +215,11 @@ function refresh() {
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
     
     var cardID = currentCard.value + currentCard.suit;
-    if (cardID != "NN") {
-	  ctx.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
+    if (cardID == "NN") {
+	    ctx.drawImage(cardBack, centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
+    }
+    else {
+        ctx.drawImage(cardImages[cardID], centre.x-(cardSize.x/2), centre.y-(cardSize.y/2), cardSize.x, cardSize.y);
     }
   
     ctx.textAlign = 'center';
