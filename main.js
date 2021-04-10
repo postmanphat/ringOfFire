@@ -249,12 +249,17 @@ function refresh() {
         //Draw names
         ctx.fillText(players[i].name, players[i].x, players[i].y);    
     }
-  
+    
     //Display current rule
     ctx.lineWidth = 4;
     ctx.strokeText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);  
+    ctx.fillText(getMsg(currentCard.value), canvas.width/2 ,canvas.height-30);
+    
+    //Display remaining cards
+    ctx.lineWidth = 4;
+    ctx.strokeText(`Cards remaining: ${deck.cards.length}`, canvas.width*0.9 , 30);
+    ctx.fillText(`Cards remaining: ${deck.cards.length}`, canvas.width*0.9 , 30);   
 }
 
 function setup() {
